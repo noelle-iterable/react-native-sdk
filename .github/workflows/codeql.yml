@@ -43,32 +43,32 @@ jobs:
           access-token: ${{ secrets.GITHUB_TOKEN }}
           endpoint: ${{ github.event.repository.languages_url }}
 
-    analyze:
-      needs: create-matrix
-      name: Analyze (${{ matrix.language }})
-      if: ${{ needs.create-matrix.outputs.matrix != '[]' }}
-      runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
-      permissions:
-        actions: read
-        contents: read
-        security-events: write
+  analyze:
+    needs: create-matrix
+    name: Analyze (${{ matrix.language }})
+    if: ${{ needs.create-matrix.outputs.matrix != '[]' }}
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
 
-      strategy:
-        fail-fast: false
-        matrix: ${{ fromJSON(needs.create-matrix.outputs.matrix) }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.create-matrix.outputs.matrix) }}
 
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v3
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
 
 
       # Initializes the CodeQL tools for scanning.
-        - name: Initialize CodeQL
-          uses: github/codeql-action/init@v3
-          with:
-            languages: ${{ matrix.language }}
-            build-mode: ${{ matrix.build-mode }}
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
 
 
       # If the analyze step fails for one of the languages you are analyzing with

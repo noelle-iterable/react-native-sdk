@@ -47,7 +47,7 @@
             languages: 'java'
 
         - name: Validate Gradle Wrapper
-          uses: gradle/action/wrapper-validation@v4
+          uses: gradle/actions/wrapper-validation@v3
 
         - name: Setup Java (Java/Kotlin)
           uses: actions/setup-java@v4

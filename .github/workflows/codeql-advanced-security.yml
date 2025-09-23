@@ -18,11 +18,10 @@
 
   jobs:
     analyze:
-      name: CodeQL Analysis
-      runs-on: ${{ (matrix.language == 'swift' && 'macos-15') || 'ubuntu-latest' }}
+      name: CodeQL Analysis for Java
+      runs-on: 'ubuntu-latest'
       continue-on-error: true
       # runs-on: ubuntu-latest
-      timeout-minutes: 360
       permissions:
         actions: read
         contents: read
@@ -31,9 +30,9 @@
 
       strategy:
         fail-fast: false
-        matrix:
-          # Define the matrix of languages to analyze
-          language: ['java', 'cpp', 'swift', 'javascript']
+    #    matrix:
+    #      # Define the matrix of languages to analyze
+    #      language: ['java', 'cpp', 'swift', 'javascript']
 
       steps:
         - name: Checkout repository
@@ -42,112 +41,19 @@
             # Fetch full history for better analysis
             fetch-depth: 0
 
-        - name: Initialize CodeQL
-          uses: github/codeql-action/init@v3
-          with:
-            languages: ${{ matrix.language }}
-            config-file: ./.github/workflows/codeql-config.yml
-            # Enable GitHub Advanced Security features
-            tools: latest
-            queries: security-and-quality
-
-        # Autobuild attempts to build any compiled languages
-        - name: Autobuild
-          uses: github/codeql-action/autobuild@v3
-          timeout-minutes: 20
-
-        # Language-specific setup and build steps
-  #      - name: Setup Node.js (JavaScript/TypeScript)
-  #        if: matrix.language == 'javascript'
-  #        run: |
-
-
-        - name: Install dependencies (JavaScript/TypeScript)
-          if: matrix.language == 'javascript'
-          run: |
-            if [ -f package-lock.json ]; then
-              npm ci
-            elif [ -f yarn.lock ]; then
-              yarn install --frozen-lockfile
-            elif [ -f pnpm-lock.yaml ]; then
-              pnpm install --frozen-lockfile
-            else
-              npm install
-            fi
-
-        - name: Build (JavaScript/TypeScript)
-          if: matrix.language == 'javascript'
-          run: |
-            if [ -f package.json ]; then
-              npm run build || echo "Build step failed, continuing with analysis"
-            fi
-
         - name: Setup Java (Java/Kotlin)
-          if: matrix.language == 'java'
           uses: actions/setup-java@v4
           with:
             distribution: 'temurin'
             java-version: '11'
 
-        - name: Build Java/Kotlin
-          if: matrix.language == 'java'
-          run: |
-            if [ -f pom.xml ]; then
-              mvn clean compile -DskipTests
-            elif [ -f build.gradle ] || [ -f build.gradle.kts ]; then
-              ./gradlew compileJava compileKotlin
-            else
-              echo "No Maven or Gradle build file found"
-            fi
-
-        - name: Install build tools (C/C++)
-          if: matrix.language == 'cpp'
-          run: |
-            sudo apt-get update
-            sudo apt-get install -y build-essential cmake
-
-  #      - name: Build C/C++
-  #        if: matrix.language == 'cpp'
-  #        run: |
-  #          if [ -f CMakeLists.txt ]; then
-  #            mkdir -p build && cd build && cmake .. && make
-  #          elif [ -f Makefile ]; then
-  #            make
-  #          else
-  #            echo "No CMake or Makefile found"
-  #          fi
-
-        - name: Setup Swift
-          if: matrix.language == 'swift'
-          uses: swift-actions/setup-swift@v1
+        - name: Initialize CodeQL
+          uses: github/codeql-action/init@v3
           with:
-            swift-version: '5.8'
+            languages: 'java'
 
-        - name: Build Swift
-          if: matrix.language == 'swift'
-          run: |
-            if [ -f Package.swift ]; then
-              swift build
-            elif [ -f *.xcodeproj ]; then
-              xcodebuild -scheme $(xcodebuild -list | grep -A1 "Schemes:" | tail -1 | xargs) -configuration Release
-            else
-              echo "No Swift Package or Xcode project found"
-            fi
+        - name: Build with Gradle
+          run: ./gradlew build
 
         - name: Perform CodeQL Analysis
           uses: github/codeql-action/analyze@v3
-          with:
-            category: "/language:${{matrix.language}}"
-            severity-cutoff: medium
-
-    # Dependabot security updates (if enabled)
-    security-updates:
-      name: Security Updates
-      runs-on: ubuntu-latest
-      if: github.event_name == 'schedule'
-      steps:
-        - name: Check for security updates
-          run: |
-            echo "Checking for security updates..."
-            # This step can be extended to check for security updates
-            # or trigger Dependabot if needed

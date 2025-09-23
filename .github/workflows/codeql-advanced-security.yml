@@ -1,160 +1,150 @@
-name: "GitHub Advanced Security - Multi-Language CodeQL Analysis"
+  name: "GitHub Advanced Security - CodeQL"
 
-  # This configuration file defines the CodeQL analysis setup for GitHub Advanced Security
-  # supporting Java, Kotlin, C/C++, Swift, and JavaScript/TypeScript
-  # Optimized for GitHub Advanced Security features and integration
+  on:
+    push:
+      branches: [ "master" ]
+    pull_request:
+      branches: [ "master" ]
+#    schedule:
+      # Run CodeQL analysis every day at 2 AM UTC
+#      - cron: '0 2 * * *'
 
-  # Define the languages to analyze
-languages:
-  - java
-  - cpp
-  - swift
-  - javascript
+  # Enable GitHub Advanced Security features
+  permissions:
+    actions: read
+    contents: read
+    security-events: write
+    pull-requests: write
 
-  # Define the queries to run for each language
-  # Optimized for GitHub Advanced Security
-queries:
-    # Primary security and quality queries for GitHub Advanced Security
-  - name: security-and-quality
-    uses: security-and-quality
-    tags:
-      - security
-      - quality
-      - ghsa
+  jobs:
+    analyze:
+      name: CodeQL Analysis
+      runs-on: ubuntu-latest
+      timeout-minutes: 360
+      permissions:
+        actions: read
+        contents: read
+        security-events: write
+        pull-requests: write
 
-    # Language-specific security queries
-  - name: java-security
-    uses: security-and-quality/java
-    tags:
-      - security
-      - java
-      - ghsa
+      strategy:
+        fail-fast: false
+        matrix:
+          # Define the matrix of languages to analyze
+          language: ['java', 'cpp', 'swift', 'javascript']
 
-  - name: cpp-security
-    uses: security-and-quality/cpp
-    tags:
-      - security
-      - cpp
-      - ghsa
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            # Fetch full history for better analysis
+            fetch-depth: 0
 
-  - name: swift-security
-    uses: security-and-quality/swift
-    tags:
-      - security
-      - swift
-      - ghsa
+        - name: Initialize CodeQL
+          uses: github/codeql-action/init@v3
+          with:
+            languages: ${{ matrix.language }}
+            config-file: ./.github/workflows/codeql-config.yml
+            # Enable GitHub Advanced Security features
+            tools: latest
+            queries: security-and-quality
 
-  - name: javascript-security
-    uses: security-and-quality/javascript
-    tags:
-      - security
-      - javascript
-      - ghsa
+        # Autobuild attempts to build any compiled languages
+        - name: Autobuild
+          uses: github/codeql-action/autobuild@v3
+          timeout-minutes: 20
 
-    # Additional security-focused queries for GitHub Advanced Security
-  - name: security-extended
-    uses: security-extended
-    tags:
-      - security
-      - extended
-      - ghsa
+        # Language-specific setup and build steps
+        - name: Setup Node.js (JavaScript/TypeScript)
+          if: matrix.language == 'javascript'
+          uses: ./.github/actions/setup
 
-  # Define the paths to include/exclude for each language
-paths:
-  - "**/*.java"
-  - "**/*.kt"
-  - "**/*.kts"
-  - "**/*.c"
-  - "**/*.cpp"
-  - "**/*.cc"
-  - "**/*.cxx"
-  - "**/*.h"
-  - "**/*.hpp"
-  - "**/*.swift"
-  - "**/*.js"
-  - "**/*.jsx"
-  - "**/*.ts"
-  - "**/*.tsx"
-  - "**/*.mjs"
+        - name: Install dependencies (JavaScript/TypeScript)
+          if: matrix.language == 'javascript'
+          run: |
+            if [ -f package-lock.json ]; then
+              npm ci
+            elif [ -f yarn.lock ]; then
+              yarn install --frozen-lockfile
+            elif [ -f pnpm-lock.yaml ]; then
+              pnpm install --frozen-lockfile
+            else
+              npm install
+            fi
 
-  # Define paths to exclude
-paths-ignore:
-  - "**/node_modules/**"
-  - "**/bower_components/**"
-  - "**/vendor/**"
-  - "**/build/**"
-  - "**/dist/**"
-  - "**/target/**"
-  - "**/out/**"
-  - "**/.git/**"
-  - "**/test/**"
-  - "**/tests/**"
-  - "**/spec/**"
-  - "**/specs/**"
-  - "**/__tests__/**"
-  - "**/__mocks__/**"
-  - "**/coverage/**"
-  - "**/.nyc_output/**"
-  - "**/tmp/**"
-  - "**/temp/**"
+        - name: Build (JavaScript/TypeScript)
+          if: matrix.language == 'javascript'
+          run: |
+            if [ -f package.json ]; then
+              npm run build || echo "Build step failed, continuing with analysis"
+            fi
 
-  # Build configuration for different languages
-build-mode: auto
+        - name: Setup Java (Java/Kotlin)
+          if: matrix.language == 'java'
+          uses: actions/setup-java@v4
+          with:
+            distribution: 'temurin'
+            java-version: '11'
 
+        - name: Build Java/Kotlin
+          if: matrix.language == 'java'
+          run: |
+            if [ -f pom.xml ]; then
+              mvn clean compile -DskipTests
+            elif [ -f build.gradle ] || [ -f build.gradle.kts ]; then
+              ./gradlew compileJava compileKotlin
+            else
+              echo "No Maven or Gradle build file found"
+            fi
 
+        - name: Install build tools (C/C++)
+          if: matrix.language == 'cpp'
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y build-essential cmake
 
-  # Analysis configuration optimized for GitHub Advanced Security
-analysis:
-    # Enable data flow analysis for security vulnerability detection
-  data-flow: true
+        - name: Build C/C++
+          if: matrix.language == 'cpp'
+          run: |
+            if [ -f CMakeLists.txt ]; then
+              mkdir -p build && cd build && cmake .. && make
+            elif [ -f Makefile ]; then
+              make
+            else
+              echo "No CMake or Makefile found"
+            fi
 
-    # Enable taint analysis for security vulnerability detection
-  taint: true
+        - name: Setup Swift
+          if: matrix.language == 'swift'
+          uses: swift-actions/setup-swift@v1
+          with:
+            swift-version: '5.8'
 
-    # Enable control flow analysis for security vulnerability detection
-  control-flow: true
+        - name: Build Swift
+          if: matrix.language == 'swift'
+          run: |
+            if [ -f Package.swift ]; then
+              swift build
+            elif [ -f *.xcodeproj ]; then
+              xcodebuild -scheme $(xcodebuild -list | grep -A1 "Schemes:" | tail -1 | xargs) -configuration Release
+            else
+              echo "No Swift Package or Xcode project found"
+            fi
 
-    # Enable points-to analysis for security vulnerability detection
-  points-to: true
+        - name: Perform CodeQL Analysis
+          uses: github/codeql-action/analyze@v3
+          with:
+            category: "/language:${{matrix.language}}"
+            severity-cutoff: medium
 
-    # Enable inter-procedural analysis for better security detection
-  inter-procedural: true
-
-    # Enable cross-file analysis for security vulnerabilities
-  cross-file: true
-
-  # Notification configuration for GitHub Advanced Security
-notifications:
-    # Enable notifications for critical findings
-  critical: true
-
-    # Enable notifications for high severity findings
-  high: true
-
-    # Enable notifications for medium severity findings
-  medium: true
-
-    # Enable notifications for low severity findings
-  low: false
-
-    # GitHub Advanced Security specific notifications
-  ghsa:
-      # Enable GitHub Security Advisories integration
-    enabled: true
-
-      # Enable Dependabot integration
-    dependabot: true
-
-      # Enable secret scanning integration
-    secret-scanning: true
-
-      # Enable dependency scanning integration
-    dependency-scanning: true
-
-  # Custom query configuration
-custom-queries:
-  # Add custom queries here if needed
-  # Example:
-  # - name: "Custom Security Query"
-  #   path: "custom-queries/security.ql"
-  #   tags: ["custom", "security"]
+    # Dependabot security updates (if enabled)
+    security-updates:
+      name: Security Updates
+      runs-on: ubuntu-latest
+      if: github.event_name == 'schedule'
+      steps:
+        - name: Check for security updates
+          run: |
+            echo "Checking for security updates..."
+            # This step can be extended to check for security updates
+            # or trigger Dependabot if needed

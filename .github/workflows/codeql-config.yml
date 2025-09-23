@@ -1,0 +1,213 @@
+name: "GitHub Advanced Security - Multi-Language CodeQL Analysis"
+
+  # This configuration file defines the CodeQL analysis setup for GitHub Advanced Security
+  # supporting Java, Kotlin, C/C++, Swift, and JavaScript/TypeScript
+  # Optimized for GitHub Advanced Security features and integration
+
+  # Define the languages to analyze
+languages:
+  - java
+  - cpp
+  - swift
+  - javascript
+
+  # Define the queries to run for each language
+  # Optimized for GitHub Advanced Security
+queries:
+    # Primary security and quality queries for GitHub Advanced Security
+  - name: security-and-quality
+    uses: security-and-quality
+    tags:
+      - security
+      - quality
+      - ghsa
+
+    # Language-specific security queries
+  - name: java-security
+    uses: security-and-quality/java
+    tags:
+      - security
+      - java
+      - ghsa
+
+  - name: cpp-security
+    uses: security-and-quality/cpp
+    tags:
+      - security
+      - cpp
+      - ghsa
+
+  - name: swift-security
+    uses: security-and-quality/swift
+    tags:
+      - security
+      - swift
+      - ghsa
+
+  - name: javascript-security
+    uses: security-and-quality/javascript
+    tags:
+      - security
+      - javascript
+      - ghsa
+
+    # Additional security-focused queries for GitHub Advanced Security
+  - name: security-extended
+    uses: security-extended
+    tags:
+      - security
+      - extended
+      - ghsa
+
+  # Define the paths to include/exclude for each language
+paths:
+  - "**/*.java"
+  - "**/*.kt"
+  - "**/*.kts"
+  - "**/*.c"
+  - "**/*.cpp"
+  - "**/*.cc"
+  - "**/*.cxx"
+  - "**/*.h"
+  - "**/*.hpp"
+  - "**/*.swift"
+  - "**/*.js"
+  - "**/*.jsx"
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.mjs"
+
+  # Define paths to exclude
+paths-ignore:
+  - "**/node_modules/**"
+  - "**/bower_components/**"
+  - "**/vendor/**"
+  - "**/build/**"
+  - "**/dist/**"
+  - "**/target/**"
+  - "**/out/**"
+  - "**/.git/**"
+  - "**/test/**"
+  - "**/tests/**"
+  - "**/spec/**"
+  - "**/specs/**"
+  - "**/__tests__/**"
+  - "**/__mocks__/**"
+  - "**/coverage/**"
+  - "**/.nyc_output/**"
+  - "**/tmp/**"
+  - "**/temp/**"
+
+  # Build configuration for different languages
+build-mode: auto
+
+  # Additional configuration for specific languages
+java:
+    # Gradle configuration
+  gradle:
+    options: ["--no-daemon", "-x test"]
+
+    # Kotlin configuration (analyzed as part of Java language)
+  kotlin:
+      # Kotlin files are analyzed using the Java language pack
+      # Build configuration for Kotlin projects
+    build-command: |
+      ./gradlew compileKotlin
+
+cpp:
+    # C++ build configuration
+  build-command: |
+      # Add your C++ build commands here
+      # Example for CMake:
+      # mkdir -p build && cd build && cmake .. && make
+      # Example for Make:
+      # make
+      # Example for MSBuild:
+      # msbuild /p:Configuration=Release
+
+swift:
+    # Swift build configuration
+  build-command: |
+      # Add your Swift build commands here
+      # Example for Swift Package Manager:
+      # swift build
+      # Example for Xcode:
+      # xcodebuild -scheme YourScheme -configuration Release
+
+javascript:
+    # JavaScript/TypeScript build configuration
+  build-command: |
+      # Add your JavaScript/TypeScript build commands here
+      # Example for npm:
+      # npm ci && npm run build
+      # Example for yarn:
+      # yarn install --frozen-lockfile && yarn build
+      # Example for pnpm:
+      # pnpm install --frozen-lockfile && pnpm build
+
+  # Analysis configuration optimized for GitHub Advanced Security
+analysis:
+    # Enable data flow analysis for security vulnerability detection
+  data-flow: true
+
+    # Enable taint analysis for security vulnerability detection
+  taint: true
+
+    # Enable control flow analysis for security vulnerability detection
+  control-flow: true
+
+    # Enable points-to analysis for security vulnerability detection
+  points-to: true
+
+    # Enable inter-procedural analysis for better security detection
+  inter-procedural: true
+
+    # Enable cross-file analysis for security vulnerabilities
+  cross-file: true
+
+  # Output configuration
+output:
+    # Include source code in results
+  include-source: true
+
+    # Include AST in results
+  include-ast: false
+
+    # Include database in results
+  include-database: false
+
+  # Notification configuration for GitHub Advanced Security
+notifications:
+    # Enable notifications for critical findings
+  critical: true
+
+    # Enable notifications for high severity findings
+  high: true
+
+    # Enable notifications for medium severity findings
+  medium: true
+
+    # Enable notifications for low severity findings
+  low: false
+
+    # GitHub Advanced Security specific notifications
+  ghsa:
+      # Enable GitHub Security Advisories integration
+    enabled: true
+
+      # Enable Dependabot integration
+    dependabot: true
+
+      # Enable secret scanning integration
+    secret-scanning: true
+
+      # Enable dependency scanning integration
+    dependency-scanning: true
+
+  # Custom query configuration
+custom-queries:
+  # Add custom queries here if needed
+  # Example:
+  # - name: "Custom Security Query"
+  #   path: "custom-queries/security.ql"
+  #   tags: ["custom", "security"]

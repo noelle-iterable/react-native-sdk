@@ -41,16 +41,19 @@
             # Fetch full history for better analysis
             fetch-depth: 0
 
+        - name: Initialize CodeQL
+          uses: github/codeql-action/init@v3
+          with:
+            languages: 'java'
+
+        - name: Validate Gradle Wrapper
+          uses: gradle/action/wrapper-validation@v4
+
         - name: Setup Java (Java/Kotlin)
           uses: actions/setup-java@v4
           with:
             distribution: 'temurin'
             java-version: '11'
-
-        - name: Initialize CodeQL
-          uses: github/codeql-action/init@v3
-          with:
-            languages: 'java'
 
         - name: Build with Gradle
           run: ./gradlew build

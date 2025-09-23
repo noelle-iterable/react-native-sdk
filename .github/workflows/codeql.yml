@@ -34,7 +34,7 @@ jobs:
       - name: Configure JDK
         uses: actions/setup-java@v4 # tags
         with:
-          java-version: 17
+          java-version: 11
           distribution: 'zulu'
 
   analyze:

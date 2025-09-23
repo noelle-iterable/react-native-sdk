@@ -62,10 +62,16 @@
 
         - run: touch local.properties
 
-        - name: Build with Gradle
+        - name: chmod gradle
           run: chmod +x ./gradlew
+
+        - name: init gradle wrapper
           run: gradle wrapper
+
+        - name: chmod gradle again
           run: chmod +x ./gradlew
+
+        - name: run gradle again
           run: ./gradlew build
 
 

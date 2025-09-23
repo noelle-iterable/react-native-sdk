@@ -135,22 +135,7 @@
           uses: github/codeql-action/analyze@v3
           with:
             category: "/language:${{matrix.language}}"
-            # Upload results to GitHub Security tab
-            upload: true
-            # Enable GitHub Advanced Security features
-            output: ${{ github.workspace }}/results
-            # Add severity levels for better filtering
             severity-cutoff: medium
-
-        # Upload results to GitHub Security tab with enhanced metadata
-        - name: Upload CodeQL results to GitHub Security
-          if: always()
-          uses: github/codeql-action/upload-sarif@v3
-          with:
-            sarif_file: ${{ github.workspace }}/results
-            category: "codeql-${{ matrix.language }}"
-            # Enable GitHub Advanced Security integration
-            upload: true
 
     # Dependabot security updates (if enabled)
     security-updates:

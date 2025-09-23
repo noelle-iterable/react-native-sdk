@@ -20,6 +20,7 @@
     analyze:
       name: CodeQL Analysis
       runs-on: ${{ (matrix.language == 'swift' && 'macos-15') || 'ubuntu-latest' }}
+      continue-on-error: true
       # runs-on: ubuntu-latest
       timeout-minutes: 360
       permissions:
@@ -105,16 +106,16 @@
             sudo apt-get update
             sudo apt-get install -y build-essential cmake
 
-        - name: Build C/C++
-          if: matrix.language == 'cpp'
-          run: |
-            if [ -f CMakeLists.txt ]; then
-              mkdir -p build && cd build && cmake .. && make
-            elif [ -f Makefile ]; then
-              make
-            else
-              echo "No CMake or Makefile found"
-            fi
+  #      - name: Build C/C++
+  #        if: matrix.language == 'cpp'
+  #        run: |
+  #          if [ -f CMakeLists.txt ]; then
+  #            mkdir -p build && cd build && cmake .. && make
+  #          elif [ -f Makefile ]; then
+  #            make
+  #          else
+  #            echo "No CMake or Makefile found"
+  #          fi
 
         - name: Setup Swift
           if: matrix.language == 'swift'

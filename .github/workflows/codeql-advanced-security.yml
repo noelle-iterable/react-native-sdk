@@ -30,9 +30,9 @@
 
       strategy:
         fail-fast: false
-    #    matrix:
-    #      # Define the matrix of languages to analyze
-    #      language: ['java', 'cpp', 'swift', 'javascript']
+        matrix:
+          # Define the matrix of languages to analyze
+          # language: ['java', 'cpp', 'swift', 'javascript']
 
       steps:
         - name: Checkout repository
@@ -44,19 +44,8 @@
         - name: Initialize CodeQL
           uses: github/codeql-action/init@v3
           with:
-            languages: 'java'
-
-        - name: Validate Gradle Wrapper
-          uses: gradle/actions/wrapper-validation@v3
-
-        - name: Setup Java (Java/Kotlin)
-          uses: actions/setup-java@v4
-          with:
-            distribution: 'temurin'
-            java-version: '11'
-
-        - name: Build with Gradle
-          run: ./gradlew build
+            languages: java-kotlin
+            build-mode: autobuild
 
         - name: Perform CodeQL Analysis
           uses: github/codeql-action/analyze@v3

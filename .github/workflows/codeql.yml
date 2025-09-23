@@ -32,7 +32,7 @@ jobs:
         uses: gradle/actions/wrapper-validation@v3 # updating to latest gradle wrapper
 
       - name: Configure JDK
-        uses: actions/setup-java@1# tags
+        uses: actions/setup-java@4# tags
         with:
           java-version: 11
 

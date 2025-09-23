@@ -62,18 +62,6 @@
 
         - run: touch local.properties
 
-        - name: chmod gradle
-          run: chmod +x ./gradlew
-
-        - name: init gradle wrapper
-          run: gradle wrapper
-
-        - name: chmod gradle again
-          run: chmod +x ./gradlew
-
-        - name: run gradle again
-          run: ./gradlew build
-
 
         - name: Perform CodeQL Analysis
           uses: github/codeql-action/analyze@v3

@@ -33,7 +33,15 @@
           # Define the matrix of languages to analyze
           language: ['java', 'cpp', 'swift', 'javascript']
 
-      steps:
+      analyze:
+        name: Analyze
+        runs-on: ${{ (matrix.language == 'swift' && 'macos-15') || 'ubuntu-latest' }}
+        permissions:
+          actions: read
+          contents: read
+          security-events: write
+
+        steps:
         - name: Checkout repository
           uses: actions/checkout@v4
           with:

@@ -44,7 +44,7 @@
           uses: github/codeql-action/init@v3
           with:
             languages: ${{ matrix.language }}
-            config-file: ./.github/workflows/codeql-config.yml
+            config-file: ./.github/codeql/codeql-config.yml
             # Enable GitHub Advanced Security features
             tools: latest
             queries: security-and-quality
@@ -123,12 +123,12 @@
         - name: Build Swift
           if: matrix.language == 'swift'
           run: |
-            if [ -f Package.swift ]; then
+            if [-f Package.swift ]; then
               swift build
-            elif [ -f *.xcodeproj ]; then
-              xcodebuild -scheme $(xcodebuild -list | grep -A1 "Schemes:" | tail -1 | xargs) -configuration Release
+            elif [ -f *xcodeproj ]; then
+              xcodebuild test -project swift-sdk.xcodeproj -scheme swift-sdk -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=${{ steps.ios-version.outputs.version }}' -enableCodeCoverage YES -resultBundlePath TestResults.xcresult CODE_SIGNING_REQUIRED=NO | xcpretty && exit ${PIPESTATUS[0]}
             else
-              echo "No Swift Package or Xcode project found"
+              echo "no Swift Package or Xcode project found"
             fi
 
         - name: Perform CodeQL Analysis

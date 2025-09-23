@@ -34,7 +34,7 @@
           # Define the matrix of languages to analyze
           language: ['java', 'cpp', 'swift', 'javascript']
 
-        steps:
+      steps:
         - name: Checkout repository
           uses: actions/checkout@v4
           with:
@@ -56,8 +56,9 @@
           timeout-minutes: 20
 
         # Language-specific setup and build steps
-        - name: Setup Node.js (JavaScript/TypeScript)
-          if: matrix.language == 'javascript'
+  #      - name: Setup Node.js (JavaScript/TypeScript)
+  #        if: matrix.language == 'javascript'
+  #        run: |
 
 
         - name: Install dependencies (JavaScript/TypeScript)

@@ -60,8 +60,10 @@
             distribution: 'temurin'
             java-version: '11'
 
+        - run: touch local.properties
+
         - name: Build with Gradle
-          run: gradlew build
+          run: ./gradlew build
 
 
         - name: Perform CodeQL Analysis

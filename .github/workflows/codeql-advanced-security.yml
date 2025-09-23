@@ -33,7 +33,7 @@
         matrix:
           include:
             - language: 'java-kotlin'
-              build-mode: 'manual'
+              build-mode: 'none'
             - language: 'javascript'
               build-mode: 'none'
 

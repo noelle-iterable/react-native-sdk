@@ -81,7 +81,7 @@ jobs:
 
   analyze2:
     name: Analyze (${{ matrix.language }})
-    runs-on: 'ubuntu-latest'
+    runs-on: ubuntu-latest
     permissions:
       # required for all workflows
       security-events: write
@@ -139,7 +139,7 @@ jobs:
 
   analyze3:
     name: Analyze (${{ matrix.language }})
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-15') || 'ubuntu-latest' }}
     permissions:
       # required for all workflows
       security-events: write
@@ -166,6 +166,10 @@ jobs:
       # or others). This is typically only required for manual builds.
       # - name: Setup runtime (example)
       #   uses: actions/setup-example@v1
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+          xcode-version: '16.4'
+
 
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL

@@ -35,7 +35,7 @@
             - language: 'java-kotlin'
               build-mode: 'autobuild'
             - language: 'javascript'
-              build-mode: 'none''
+              build-mode: 'none'
 
       steps:
         - name: Checkout repository

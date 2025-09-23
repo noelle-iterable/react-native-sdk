@@ -31,10 +31,8 @@
       strategy:
         fail-fast: false
         matrix:
-          language: 'java-kotlin'
-          build-mode: 'autobuild'
-          # Define the matrix of languages to analyze
-          # language: ['java', 'cpp', 'swift', 'javascript']
+          - language: java-kotlin
+            build-mode: autobuild
 
       steps:
         - name: Checkout repository
@@ -51,3 +49,5 @@
 
         - name: Perform CodeQL Analysis
           uses: github/codeql-action/analyze@v3
+          with:
+            category: "/language:${{matrix.language}}"
